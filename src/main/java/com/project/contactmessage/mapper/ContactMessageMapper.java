@@ -1,6 +1,7 @@
 package com.project.contactmessage.mapper;
 
 import com.project.contactmessage.dto.ContactMessageRequest;
+import com.project.contactmessage.dto.ContactMessageResponse;
 import com.project.contactmessage.entity.ContactMessage;
 import org.springframework.stereotype.Component;
 
@@ -19,5 +20,15 @@ public class ContactMessageMapper {
                 .dateTime(LocalDateTime.now())
                 .build();
 
+    }
+
+    public ContactMessageResponse contactMessageToResponse(ContactMessage contactMessage){
+        return ContactMessageResponse.builder()
+                .name(contactMessage.getName())
+                .subject(contactMessage.getSubject())
+                .message(contactMessage.getMessage())
+                .email(contactMessage.getEmail())
+                .dateTime(contactMessage.getDateTime())
+                .build();
     }
 }
