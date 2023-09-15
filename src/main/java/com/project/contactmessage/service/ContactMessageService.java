@@ -4,6 +4,7 @@ import com.project.contactmessage.dto.ContactMessageRequest;
 import com.project.contactmessage.dto.ContactMessageResponse;
 import com.project.contactmessage.dto.ContactMessageUpdateRequest;
 import com.project.contactmessage.entity.ContactMessage;
+import com.project.contactmessage.exception.ConflictException;
 import com.project.contactmessage.exception.ResourceNotFoundException;
 import com.project.contactmessage.mapper.ContactMessageMapper;
 import com.project.contactmessage.message.Messages;
@@ -17,7 +18,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -81,7 +85,7 @@ public class ContactMessageService {
 
     //Not: deleteByIdParam******************************************
     public String deleteById(Long contactMessageId) {
-        //ContactMessage cm=getContactMessageById(contactMessageId);
+
        // contactMessageRepository.delete(getContactMessageById(contactMessageId));
         getContactMessageById(contactMessageId);
         contactMessageRepository.deleteById(contactMessageId);
@@ -112,5 +116,30 @@ public class ContactMessageService {
                 .httpStatus(HttpStatus.CREATED)
                 .object(contactMessageMapper.contactMessageToResponse(contactMessage))
                 .build();
+    }
+
+    // Not: Odev --> searchByTimeBetween ************************
+    public List<ContactMessage> searchByDateBetween(String beginDateString, String endDateString) {
+        try{
+            LocalDate beginDate = LocalDate.parse(beginDateString);
+            LocalDate endDate = LocalDate.parse(endDateString);
+            return contactMessageRepository.findMessagesBetweenDates(beginDate,endDate);
+        }catch(DateTimeParseException e ){
+            throw new ConflictException(Messages.WRONG_DATE_FORMAT);
+        }
+
+    }
+
+    public List<ContactMessage> searchByTimeBetween(String startHourString, String startMinuteString,
+                                                    String endHourString, String endMinuteString) {
+        try{
+            int startHour = Integer.parseInt(startHourString);
+            int startMinute = Integer.parseInt(startMinuteString);
+            int endHour = Integer.parseInt(endHourString);
+            int endMinute = Integer.parseInt(endMinuteString);
+            return contactMessageRepository.findMessagesBetweenTimes(startHour, startMinute, endHour, endMinute);
+        }catch (NumberFormatException e) {
+            throw new ConflictException(Messages.WRONG_TIME_FORMAT);
+        }
     }
 }
