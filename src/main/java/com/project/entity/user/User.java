@@ -1,11 +1,17 @@
 package com.project.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.entity.business.LessonProgram;
+import com.project.entity.business.StudentInfo;
+import com.project.entity.enums.Gender;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -44,5 +50,21 @@ public class User {
     private boolean isActive;
     private Boolean isAdvisor;
     private Long advisorTeacherId; //bu field student ler icin eklendi
+
+    private Gender gender;
+    @OneToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private UserRole userRole;
+
+    //Note: StudentInfo-LessonProgram-Meet
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<StudentInfo> studentInfos; //set olabilir
+
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(name = "user_lessonprogram",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "lesson_program_id"))
+    private Set<LessonProgram>lessonsProgramList;
 
 }

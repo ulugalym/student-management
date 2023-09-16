@@ -107,14 +107,12 @@ public class ContactMessageController {
     }
 
     // Not: Odev --> searchByTimeBetween ************************
-    @GetMapping("/SearchBetweenTimes")// http://localhost:8080/contactMessages/searchBetweenTimes?startHour=09&startMinute=00&endHour=17&endMinute=30
+    @GetMapping("/searchBetweenTimes")// http://localhost:8080/contactMessages/searchBetweenTimes?startHour=09&startMinute=00&endHour=17&endMinute=30
     public ResponseEntity<List<ContactMessage>>searchByTimeBetween(
             @RequestParam(value = "startHour")String startHour,
             @RequestParam(value = "startMinute")String startMinute,
             @RequestParam(value = "endHour")String endHour,
-            @RequestParam(value = "endMinute")String endMinute
-
-    ){
+            @RequestParam(value = "endMinute")String endMinute){
         List<ContactMessage>contactMessages = contactMessageService.searchByTimeBetween(startHour,startMinute,endHour,endMinute);
         return ResponseEntity.ok(contactMessages);
     }
