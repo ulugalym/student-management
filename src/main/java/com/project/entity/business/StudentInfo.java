@@ -36,10 +36,14 @@ public class StudentInfo {
     @JsonIgnore
     private User student;
 
-    //Note: Lesson - EducationTerm
+    //Note: Lesson
 
     @ManyToOne
     private Lesson lesson;
+
+    //Note:- EducationTerm
+    @OneToOne
+    private EducationTerm educationTerm;
 
 
 

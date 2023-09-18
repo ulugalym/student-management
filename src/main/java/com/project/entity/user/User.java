@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.entity.business.LessonProgram;
+import com.project.entity.business.Meet;
 import com.project.entity.business.StudentInfo;
 import com.project.entity.enums.Gender;
 import lombok.*;
@@ -56,15 +57,26 @@ public class User {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private UserRole userRole;
 
-    //Note: StudentInfo-LessonProgram-Meet
-    @OneToMany(cascade = CascadeType.REMOVE)
+    //Note: StudentInfo
+    @OneToMany(mappedBy = "teacher",cascade = CascadeType.REMOVE)
     private List<StudentInfo> studentInfos; //set olabilir
 
+    //Note: -LessonProgram
     @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_lessonprogram",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "lesson_program_id"))
     private Set<LessonProgram>lessonsProgramList;
+
+    //Note: -Meet
+    @JsonIgnore
+    @ManyToMany
+    @JoinTable(
+            name = "meet_student_table",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "meet_id")
+    )
+    private List<Meet>meetList;
 
 }

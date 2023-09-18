@@ -28,7 +28,7 @@ public class Lesson {
     //Note: LessonProgram
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "lesson",cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "lessons",cascade = CascadeType.REMOVE)
     private Set<LessonProgram>lessonPrograms;
 
 }

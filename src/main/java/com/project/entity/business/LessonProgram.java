@@ -41,7 +41,7 @@ public class LessonProgram {
     private EducationTerm educationTerm;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @ManyToMany(mappedBy = "lessonProgramList",fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "lessonsProgramList",fetch = FetchType.EAGER)
     private Set<User>users;
 
     @PreRemove
