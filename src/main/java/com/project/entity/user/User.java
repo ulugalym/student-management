@@ -52,6 +52,7 @@ public class User {
     private Boolean isAdvisor;
     private Long advisorTeacherId; //bu field student ler icin eklendi
 
+    @Enumerated(EnumType.STRING)
     private Gender gender;
     @OneToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

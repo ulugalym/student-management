@@ -1,7 +1,6 @@
 package com.project.security.jwt;
 
 import com.project.security.service.UserDetailsServiceImpl;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
