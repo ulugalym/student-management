@@ -82,6 +82,7 @@ public class AuthenticationService {
 
         String username = (String) request.getAttribute("username");
         User user = userRepository.findByUsernameEquals(username);
+
         // !!! build_in mi  ??
         if(Boolean.TRUE.equals(user.getBuilt_in())){
             throw new BadRequestException(ErrorMessages.NOT_PERMITTED_METHOD_MESSAGE);
