@@ -47,7 +47,7 @@ public class AuthenticationService {
         // valide edilen kullanici Contexte atiliyor
         SecurityContextHolder.getContext().setAuthentication(authentication);
         //jwt token olusturulyor
-        String token = "Bearer"+jwtUtils.generateJwtToken(authentication);
+        String token = "Bearer "+jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 

@@ -8,6 +8,7 @@ import com.project.exception.ResourceNotFoundException;
 import com.project.payload.messages.ErrorMessages;
 import com.project.payload.messages.SuccessMessages;
 import com.project.payload.request.user.UserRequest;
+import com.project.payload.request.user.UserRequestWithoutPassword;
 import com.project.payload.response.abstracts.BaseUserResponse;
 import com.project.payload.response.business.ResponseMessage;
 import com.project.payload.response.user.UserResponse;
@@ -23,7 +24,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -116,7 +119,7 @@ public class UserService {
         } else if (user2.getUserRole().getRoleType() == RoleType.MANAGER) {
             if(!((user.getUserRole().getRoleType() == RoleType.TEACHER) ||
                     (user.getUserRole().getRoleType() == RoleType.STUDENT)||
-                    (user.getUserRole().getRoleType() == RoleType.ASSISTANT_MANAGER)){
+                    (user.getUserRole().getRoleType() == RoleType.ASSISTANT_MANAGER))){
                 throw new BadRequestException(ErrorMessages.NOT_PERMITTED_METHOD_MESSAGE);
             }
         } else if (user2.getUserRole().getRoleType() == RoleType.ASSISTANT_MANAGER) {
@@ -130,14 +133,85 @@ public class UserService {
     }
 
     // Note : updateAdminOrDeanOrViceDean() **********************************
-    public ResponseEntity<BaseUserResponse> updateUser(UserService userService, Long userId) {
-        // !!! id control
+    public ResponseMessage<BaseUserResponse> updateUser(UserRequest userRequest, Long userId) {
+        // !!! id controller
         User user = isUserExist(userId);
+        // !!! TODO : built_in
+        if(Boolean.TRUE.equals(user.getBuilt_in())){
+            throw new BadRequestException(ErrorMessages.NOT_PERMITTED_METHOD_MESSAGE);
+        }
+        // !!! unique control
+        uniquePropertyValidator.checkUniqueProperty(user,userRequest);
 
+        // !!! DTO --> POJO
+        User updatedUser = userMapper.mapUserRequestToUpdatedUser(userRequest,userId);
+        // !!! password encoder
+        updatedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+
+        updatedUser.setUserRole(user.getUserRole());
+
+        User savedUser = userRepository.save(updatedUser);
+
+        return ResponseMessage.<BaseUserResponse>builder()
+                .message(SuccessMessages.USER_UPDATE_MESSAGE)
+                .httpStatus(HttpStatus.OK)
+                .object(userMapper.mapUserToUserResponse(savedUser))
+                .build();
     }
 
     public User isUserExist(Long userId){
        return userRepository.findById(userId).orElseThrow(()->
                 new ResourceNotFoundException(String.format(ErrorMessages.NOT_FOUND_USER_MESSAGE,userId)));
     }
+
+
+    //Note: updateUserForUsers() ********************************************
+    public ResponseEntity<String> updateUserForUsers(UserRequestWithoutPassword userRequest, HttpServletRequest request) {
+
+        String userName =(String) request.getAttribute("username");
+
+        User user = userRepository.findByUsernameEquals(userName);
+
+        //TODO: built_in control
+        if(Boolean.TRUE.equals(user.getBuilt_in())){
+            throw new BadRequestException(ErrorMessages.NOT_PERMITTED_METHOD_MESSAGE);
+        }
+
+        // !!! unique control
+        uniquePropertyValidator.checkUniqueProperty(user,userRequest);
+        // !!!update islemi
+        user.setBirthDay(userRequest.getBirthDay());
+        user.setEmail(userRequest.getEmail());
+        user.setPhoneNumber(userRequest.getPhoneNumber());
+        user.setGender(userRequest.getGender());
+        user.setBirthPlace(userRequest.getBirthPlace());
+        user.setName(userRequest.getName());
+        user.setSurname(userRequest.getSurname());
+        user.setSsn(userRequest.getSsn());
+        user.setUsername(userRequest.getUsername());
+
+
+
+        userRepository.save(user);
+
+        String message = SuccessMessages.USER_UPDATE_MESSAGE;
+
+        return ResponseEntity.ok(message);
+
+    }
+
+    // Note: getByName() ****************************************************
+    public List<UserResponse> getUserByName(String name) {
+
+        return userRepository.getUserByNameContaining(name)
+                .stream()
+                .map(userMapper::mapUserToUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    // Note: Runner icin yazildi ********************************************
+    public long countAllAdmins(){
+        return userRepository.countAdmin(RoleType.ADMIN);
+    }
+
 }
